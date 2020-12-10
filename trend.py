@@ -1,6 +1,6 @@
 import pandas as pd
 
-dataFrame = pd.read_excel('D:/aaa/data/testData1.xlsx')
+dataFrame = pd.read_excel('data/testData.xlsx')
 dateIndex = -1
 columnName_1 = 'Unnamed: 0'  # 第一列列名
 columnName_2 = 'OPEN'  # 第二列列名
@@ -271,44 +271,148 @@ class Trend:
                 tempLoc = i
         return tempMin, tempLoc
 
+    # 在上升趋势或下降趋势出现的情况下，根据高低点数组找到对应上升\下降区间
+    @staticmethod
+    def trend_interval(MAX_HIGH_DATE_WITHOUT_CONTINUITY, MIN_LOW_DATE_WITHOUT_CONTINUITY):
+        # 长度为2的数组，用以记录区间内最早的一天和最迟的一天
+        interval = []
+        if MAX_HIGH_DATE_WITHOUT_CONTINUITY[0] < MIN_LOW_DATE_WITHOUT_CONTINUITY[0]:
+            interval.append(MAX_HIGH_DATE_WITHOUT_CONTINUITY[0])
+        else:
+            interval.append(MIN_LOW_DATE_WITHOUT_CONTINUITY[0])
+
+        if MAX_HIGH_DATE_WITHOUT_CONTINUITY[-1] > MIN_LOW_DATE_WITHOUT_CONTINUITY[-1]:
+            interval.append(MAX_HIGH_DATE_WITHOUT_CONTINUITY[-1])
+        else:
+            interval.append(MIN_LOW_DATE_WITHOUT_CONTINUITY[-1])
+
+        return interval
+
     # 趋势判断
     @staticmethod
-    def trend_judge(MAX_HIGH_WITHOUT_CONTINUITY, MIN_LOW_WITHOUT_CONTINUITY):
+    def trend_judge(MAX_HIGH_WITHOUT_CONTINUITY, MIN_LOW_WITHOUT_CONTINUITY, MAX_HIGH_DATE_WITHOUT_CONTINUITY,
+                    MIN_LOW_DATE_WITHOUT_CONTINUITY):
+        interval = []
         if len(MAX_HIGH_WITHOUT_CONTINUITY) == 1 and len(MIN_LOW_WITHOUT_CONTINUITY) == 1:
             print("不存在趋势")
-            return 3
+            return 3, interval
         elif len(MAX_HIGH_WITHOUT_CONTINUITY) == 1:
             if Trend.is_ascending_order(MIN_LOW_WITHOUT_CONTINUITY):
-                print("满足上升趋势")
-                return 1
+                print("满足上升趋势,上升区间为：")
+                interval = Trend.trend_interval(MAX_HIGH_DATE_WITHOUT_CONTINUITY, MIN_LOW_DATE_WITHOUT_CONTINUITY)
+                print(str(interval[0].year) + "/" + str(interval[0].month) + "/" + str(interval[0].day),
+                      str(interval[1].year) + "/" + str(interval[1].month) + "/" + str(interval[1].day))
+                return 1, interval
             elif Trend.is_descending_order(MIN_LOW_WITHOUT_CONTINUITY):
-                print("满足下降趋势")
-                return 2
+                print("满足下降趋势，下降区间为：")
+                interval = Trend.trend_interval(MAX_HIGH_DATE_WITHOUT_CONTINUITY, MIN_LOW_DATE_WITHOUT_CONTINUITY)
+                print(str(interval[0].year) + "/" + str(interval[0].month) + "/" + str(interval[0].day),
+                      str(interval[1].year) + "/" + str(interval[1].month) + "/" + str(interval[1].day))
+                return 2, interval
             else:
                 print("不存在趋势")
-                return 3
+                return 3, interval
         elif len(MIN_LOW_WITHOUT_CONTINUITY) == 1:
             if Trend.is_ascending_order(MAX_HIGH_WITHOUT_CONTINUITY):
-                print("满足上升趋势")
-                return 1
+                print("满足上升趋势,上升区间为：")
+                interval = Trend.trend_interval(MAX_HIGH_DATE_WITHOUT_CONTINUITY, MIN_LOW_DATE_WITHOUT_CONTINUITY)
+                print(str(interval[0].year) + "/" + str(interval[0].month) + "/" + str(interval[0].day),
+                      str(interval[1].year) + "/" + str(interval[1].month) + "/" + str(interval[1].day))
+                return 1, interval
             elif Trend.is_descending_order(MAX_HIGH_WITHOUT_CONTINUITY):
-                print("满足下降趋势")
-                return 2
+                print("满足下降趋势，下降区间为：")
+                interval = Trend.trend_interval(MAX_HIGH_DATE_WITHOUT_CONTINUITY, MIN_LOW_DATE_WITHOUT_CONTINUITY)
+                print(str(interval[0].year) + "/" + str(interval[0].month) + "/" + str(interval[0].day),
+                      str(interval[1].year) + "/" + str(interval[1].month) + "/" + str(interval[1].day))
+                return 2, interval
             else:
                 print("不存在趋势")
-                return 3
+                return 3, interval
         else:
             if Trend.is_ascending_order(MAX_HIGH_WITHOUT_CONTINUITY) and Trend.is_ascending_order(
                     MIN_LOW_WITHOUT_CONTINUITY):
-                print("满足上升趋势")
-                return 1
+                print("满足上升趋势,上升区间为：")
+                interval = Trend.trend_interval(MAX_HIGH_DATE_WITHOUT_CONTINUITY, MIN_LOW_DATE_WITHOUT_CONTINUITY)
+                print(str(interval[0].year) + "/" + str(interval[0].month) + "/" + str(interval[0].day),
+                      str(interval[1].year) + "/" + str(interval[1].month) + "/" + str(interval[1].day))
+                return 1, interval
             elif Trend.is_descending_order(MAX_HIGH_WITHOUT_CONTINUITY) and Trend.is_descending_order(
                     MIN_LOW_WITHOUT_CONTINUITY):
-                print("满足下降趋势")
-                return 2
+                print("满足下降趋势，下降区间为：")
+                interval = Trend.trend_interval(MAX_HIGH_DATE_WITHOUT_CONTINUITY, MIN_LOW_DATE_WITHOUT_CONTINUITY)
+                print(str(interval[0].year) + "/" + str(interval[0].month) + "/" + str(interval[0].day),
+                      str(interval[1].year) + "/" + str(interval[1].month) + "/" + str(interval[1].day))
+                return 2, interval
             else:
                 print("不存在趋势")
-                return 3
+                return 3, interval
+
+    # 对数据集内每一天进行趋势分析，合并所有的上升区间及下降区间
+    @staticmethod
+    def transversal_interval():
+        # 数据集中最后一天日期
+        last_data = dataFrame.iloc[-1][0]
+        last_row = Trend.read_row_by_date(last_data) + 1
+
+        # 上升区间二维数组，内部每一个两位的数组代表一个连续上升区间
+        up = []
+        # 用以统计日期是否仍然连续的数组，一旦区间不再连续，就将其放入up数组，并清空继续计算
+        temp_up = []
+
+        down = []
+        temp_down = []
+        for i in range(4 * inputCycle, last_row + 1, 1):
+            maxInfo = Trend.read_max_by_step(inputCycle, i)
+            minInfo = Trend.read_min_by_step(inputCycle, i)
+            noContinuity = Trend.continuity_eliminate(minInfo[0], maxInfo[0], minInfo[1], maxInfo[1])
+            trend_info = Trend.trend_judge(noContinuity[0], noContinuity[1], noContinuity[2], noContinuity[3])
+            interval = trend_info[1]
+            if trend_info[0] == 1:
+                if len(temp_up) == 0:
+                    temp_up.append(interval[0])
+                    temp_up.append(interval[1])
+                else:
+                    if interval[0] > temp_up[1]:
+                        # 前后上升区间不再连续，将原来的区间放入大数组，更新当前区间
+                        up.append(temp_up)
+                        temp_up=[]
+                        temp_up.append(interval[0])
+                        temp_up.append(interval[1])
+                    elif interval[1] > temp_up[1]:
+                        # 延长连续区间
+                        temp_up[1] = interval[1]
+            elif trend_info[0] == 2:
+                if len(temp_down) == 0:
+                    temp_down.append(interval[0])
+                    temp_down.append(interval[1])
+                else:
+                    if interval[0] > temp_down[1]:
+                        # 前后上升区间不再连续，将原来的区间放入大数组，更新当前区间
+                        down.append(temp_down)
+                        temp_down=[]
+                        temp_down.append(interval[0])
+                        temp_down.append(interval[1])
+                    elif interval[1] > temp_down[1]:
+                        # 延长连续区间
+                        temp_down[1] = interval[1]
+        if len(temp_up) > 0:
+            up.append(temp_up)
+        if len(temp_down) > 0:
+            down.append(temp_down)
+
+        up_result = "全数据集的上升区间："
+        down_result = "全数据集的下降区间："
+        for i in range(0, len(up), 1):
+            up_result = up_result + str(up[i][0].year) + "/" + str(up[i][0].month) + "/" + str(up[i][0].day) \
+                        + "--" + str(up[i][1].year) + "/" + str(up[i][1].month) + "/" + str(up[i][1].day) + "  "
+
+        for i in range(0, len(down), 1):
+            down_result = down_result + str(down[i][0].year) + "/" + str(down[i][0].month) + "/" + str(down[i][0].day) \
+                          + "--" + str(down[i][1].year) + "/" + str(down[i][1].month) + "/" + str(down[i][1].day) + "  "
+
+        result = up_result + "\n" + down_result
+        print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!",result)
+        return result
 
     # 突破判断
     @staticmethod
@@ -358,13 +462,24 @@ class Trend:
         print("\n无重复性和连续性的最低点序列对应日期如下：")
         print(noContinuity[3])
         print("\n趋势判断如下：")
-        trendResult = Trend.trend_judge(noContinuity[0], noContinuity[1])
-        if trendResult == 3:
-            result.append("不存在趋势")
-        elif trendResult == 1:
-            result.append("满足上升趋势")
+
+        interval = Trend.transversal_interval()
+
+        trendResult = Trend.trend_judge(noContinuity[0], noContinuity[1], noContinuity[2], noContinuity[3])
+
+        if trendResult[0] == 3:
+            result.append(interval+"\n"+"当天不存在趋势")
+        elif trendResult[0] == 1:
+            result.append(interval+"\n"+"当天满足上升趋势，上升区间为：" +
+                          str(trendResult[1][0].year) + "/" + str(trendResult[1][0].month) + "/" + str(trendResult[1][0].day)
+                          + "--" +
+                          str(trendResult[1][1].year) + "/" + str(trendResult[1][1].month) + "/" + str(trendResult[1][1].day))
         else:
-            result.append("满足下降趋势")
+            result.append(interval+"\n"+"当天满足下降趋势，下降区间为：" +
+                          str(trendResult[1][0].year) + "/" + str(trendResult[1][0].month) + "/" + str(trendResult[1][0].day)
+                          + "--" +
+                          str(trendResult[1][1].year) + "/" + str(trendResult[1][1].month) + "/" + str(trendResult[1][1].day))
+
         print("\n突破判断如下：")
         breakResult = Trend.break_judge(noContinuity[0], noContinuity[1])
         result.append(breakResult)
@@ -373,7 +488,7 @@ class Trend:
     # 从最后一个时间点向前遍历，得到所有点对应周期的趋势
     @staticmethod
     def transversal_trend():
-
+        # info为RSI值计算需要的数组
         info = []
         unitInfo = []
 
@@ -381,14 +496,16 @@ class Trend:
             maxInfo = Trend.read_max_by_step(inputCycle, i)
             minInfo = Trend.read_min_by_step(inputCycle, i)
             noContinuity = Trend.continuity_eliminate(minInfo[0], maxInfo[0], minInfo[1], maxInfo[1])
-            if Trend.trend_judge(noContinuity[0], noContinuity[1]) == 1 and len(noContinuity[2]) >= 2:
+            if Trend.trend_judge(noContinuity[0], noContinuity[1], noContinuity[2], noContinuity[3])[0] == 1 and len(
+                    noContinuity[2]) >= 2:
                 unitInfo.append(1)
                 unitInfo.append(i - 1)
                 unitInfo.append(Trend.read_row_by_date(noContinuity[2][-2]))
                 unitInfo.append(Trend.read_row_by_date(noContinuity[2][-1]))
                 info.append(unitInfo)
                 unitInfo = []
-            elif Trend.trend_judge(noContinuity[0], noContinuity[1]) == 2 and len(noContinuity[3]) >= 2:
+            elif Trend.trend_judge(noContinuity[0], noContinuity[1], noContinuity[2], noContinuity[3])[0] == 2 and len(
+                    noContinuity[3]) >= 2:
                 unitInfo.append(2)
                 unitInfo.append(i - 1)
                 unitInfo.append(Trend.read_row_by_date(noContinuity[3][-2]))
@@ -407,4 +524,4 @@ class Trend:
         maxInfo = Trend.read_max_by_step(inputCycle, dateIndex)
         minInfo = Trend.read_min_by_step(inputCycle, dateIndex)
         noContinuity = Trend.continuity_eliminate(minInfo[0], maxInfo[0], minInfo[1], maxInfo[1])
-        return Trend.trend_judge(noContinuity[0], noContinuity[1])
+        return Trend.trend_judge(noContinuity[0], noContinuity[1], noContinuity[2], noContinuity[3])[0]

@@ -1,2 +1,3 @@
 # FinancialAnalysis
-##在D盘下创建名为aaa的文件夹，将该分支下的文件放入该文件夹
+##输出文件样例在result文件夹下
+##运行程序前，将输入数据改名为testData.xlsx放入data文件夹下，运行完的输出文件在result文件夹下

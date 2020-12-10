@@ -15,7 +15,7 @@ from report import Report
 from trend import Trend
 from movingAverage import averageLine
 
-filePath = 'D:/aaa/data/testData1.xlsx'
+filePath = 'data/testData.xlsx'
 dataFrame = pd.read_excel(filePath)
 
 

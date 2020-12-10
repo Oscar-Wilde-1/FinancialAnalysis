@@ -9,7 +9,7 @@
 '''
 import pandas as pd
 
-filePath = 'D:/aaa/data/testData1.xlsx'
+filePath = 'data/testData.xlsx'
 
 
 def timeConvert(year, month, day):
@@ -22,7 +22,7 @@ def timeConvert(year, month, day):
 
 class averageLine:
 
-    def __init__(self, filePath='D:/aaa/data/testData1.xlsx', year=2020, month=9, day=9):
+    def __init__(self, filePath='data/testData.xlsx', year=2020, month=9, day=9):
         #   默认是以天计算
         df = pd.read_excel(filePath)
         date = timeConvert(year, month, day)

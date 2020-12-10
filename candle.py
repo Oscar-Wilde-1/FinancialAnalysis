@@ -1,6 +1,5 @@
 import pandas as pd
 
-
 # author 刘钰
 from trend import Trend
 
@@ -13,7 +12,7 @@ class Candle:
         string = ''
 
         # 打开文件，获取excel文件的workbook（工作簿）对象
-        workbook = pd.DataFrame(pd.read_excel("D:/aaa/data/testData1.xlsx"))
+        workbook = pd.DataFrame(pd.read_excel("data/testData.xlsx"))
         workbook.columns = ['datetime', 'Open', 'High', 'Low', 'Close']
 
         time1 = pd.Timestamp(year, month, day)
@@ -46,6 +45,7 @@ class Candle:
                 # 判断趋势
 
                 date = workbook.iloc[i - 1][0]
+
                 trend = Trend.judgeTrend(date.year, date.month, date.day, cycle)
                 date = workbook.iloc[i][0]
                 if trend == 1:

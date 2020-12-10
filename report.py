@@ -30,8 +30,7 @@ class Report:
         font.bold = True
 
         # 绘制k线图
-        df = pd.DataFrame(pd.read_excel("D:/aaa/data/testData1.xlsx"))
-        print(df)
+        df = pd.DataFrame(pd.read_excel("data/testData.xlsx"))
         df.columns = ['datetime', 'Open', 'High', 'Low', 'Close']
         time1 = pd.Timestamp(year, month, day)
         df = df.loc[df['datetime'] <= time1]
@@ -44,11 +43,11 @@ class Report:
             style="binance",
             mav=(2, 5, 10),
             volume=False,
-            savefig="D:/aaa/result/mplfinance.png"
+            savefig="result/mplfinance.png"
         )
 
         # 添加图片
-        document.add_picture("D:/aaa/result/mplfinance.png", width=Inches(6))
+        document.add_picture("result/mplfinance.png", width=Inches(6))
         # 图片居中
         last_paragraph = document.paragraphs[-1]
         last_paragraph.alignment = WD_ALIGN_PARAGRAPH.CENTER
@@ -75,4 +74,4 @@ class Report:
         table.cell(7, 1).text = array[1]
         table.cell(8, 1).text = array[0][1]
         # 保存docx
-        document.save("D:/aaa/result/report_"+time.strftime("%Y_%m_%d_%H_%M_%S", time.localtime())+".docx")
+        document.save("result/report_"+time.strftime("%Y_%m_%d_%H_%M_%S", time.localtime())+".docx")

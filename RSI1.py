@@ -1,6 +1,6 @@
 import pandas as pd
 
-dataFrame = pd.read_excel('D:/aaa/data/testData1.xlsx')
+dataFrame = pd.read_excel('data/testData.xlsx')
 DateIndex = -1  # 用户输入的时间对应的数据，所在 *数据数组* 中的下标
 RSIday = 0  # 计算RSI值的时间参数
 MACDstr = ""  # 分析MACD值得到的分析结果字符串
@@ -161,19 +161,7 @@ class IndexAnalysis:
                 MACDstr += str(dataStr) + " 向下穿越\n"
                 # print("向下穿越")
 
-    @staticmethod
-    # 分析日线级别RSI背离情况 zzc
-    # 参数trend为0，1分别表示上涨和下跌趋势;参数penultimate_index表示倒数第二个高点/低点所在数据数组下标
-    # 参数last_index 表示倒数第一个高点/低点所在数据数组下标（上涨趋势中，即trend=0，取高点，反之低点）
-    def AnalyzeRSI(trend, penultimate_index, last_index):
-        if trend == 0:
-            if IndexAnalysis.CaculateRSI(penultimate_index, RSIday) > IndexAnalysis.CaculateRSI(last_index, RSIday):
-                print("上升趋势中，新的收盘价高点对应的RSI值低于旧收盘价高点对应的RSI值")
-        elif trend == 1:
-            if IndexAnalysis.CaculateRSI(penultimate_index, RSIday) < IndexAnalysis.CaculateRSI(last_index, RSIday):
-                print("下降趋势中，新的收盘价低点对应RSI值高于旧收盘价低点对应的RSI值")
-        else:
-            print("计算RSI背离情况中，趋势输入有误")
+
 
     @staticmethod
     # 获取在数据数组dataframe中，下标为dataindex的数据的对应日期
@@ -185,6 +173,7 @@ class IndexAnalysis:
     # 分析RSI背离情况 zzc
     # 参数为zmx提供的数组
     def AnalyzeRSI(trend_array):
+        print(11111 , trend_array)
         for element in trend_array:
             global RSIstr
             if element[0] == 1:  # 说明处于上升趋势
@@ -192,17 +181,22 @@ class IndexAnalysis:
                 if (IndexAnalysis.CaculateRSI(element[2], RSIday)  # element[2]表示倒数第二个高点
                         > IndexAnalysis.CaculateRSI(element[3], RSIday)):  # element[3]表示最后一个高点
                     date = IndexAnalysis.read_date(element[1])
-                    RSIstr += date + " 上升趋势中，新的收盘价高点对应的RSI值低于旧收盘价高点对应的RSI值\n"
+                    datelast = IndexAnalysis.read_date(element[3])
+                    datepenultimate = IndexAnalysis.read_date(element[2])
+                    RSIstr += "对于" + date + "来说：在上升趋势" + datepenultimate + "到" + datelast + "中，新的收盘价高点对应的RSI值低于旧收盘价高点对应的RSI值\n"
             elif element[0] == 2:  # 说明处于下降趋势
                 # 下降趋势中，新的收盘价低点对应RSI值高于旧收盘价低点对应的RSI值，给予提示
                 if (IndexAnalysis.CaculateRSI(element[2], RSIday)  # element[2]表示倒数第二个低点
                         < IndexAnalysis.CaculateRSI(element[3], RSIday)):  # element[3]表示最后一个低点
                     date = IndexAnalysis.read_date(element[1])
-                    RSIstr += date + " 下降趋势中，新的收盘价低点对应RSI值高于旧收盘价低点对应的RSI值\n"
+                    datelast = IndexAnalysis.read_date(element[3])
+                    datepenultimate = IndexAnalysis.read_date(element[2])
+                    RSIstr += "对于" + date + "来说：在下降趋势" + datepenultimate + "到" + datelast + "中，新的收盘价低点对应RSI值高于旧收盘价低点对应的RSI值\n"
 
     @staticmethod
     # 输出技术指标分析结果 zzc
     def Output():
+        print("递归计算EMA(12),EMA(26),DEA等指标，请耐心等待\n")
         IndexAnalysis.Initiallize()
         for index in range(0, DateIndex + 1):
             RSI = IndexAnalysis.CaculateRSI(index, RSIday)
