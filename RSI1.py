@@ -1,6 +1,7 @@
 import pandas as pd
+from functools import lru_cache
 
-dataFrame = pd.read_excel('data/testData.xlsx')
+dataFrame = pd.read_excel('D:/aaa/data/testData1.xlsx')
 DateIndex = -1  # 用户输入的时间对应的数据，所在 *数据数组* 中的下标
 RSIday = 0  # 计算RSI值的时间参数
 MACDstr = ""  # 分析MACD值得到的分析结果字符串
@@ -66,26 +67,29 @@ class IndexAnalysis:
         FallDay = 0  # day天内，下跌的天数
         for row in df.itertuples():
             if getattr(row, columnName_2) > getattr(row, columnName_5):  # 如果收盘价低于开盘价，则该天算做下跌
-                FallPrice += getattr(row, columnName_5)
+                # FallPrice += getattr(row, columnName_5)
+                FallPrice += getattr(row, columnName_2) - getattr(row, columnName_5)
                 FallDay += 1
             else:  # 如果收盘价高于开盘价，则该天算做上涨
-                RosePrcie += getattr(row, columnName_5)
+                RosePrcie += getattr(row, columnName_5) - getattr(row, columnName_2)
                 RoseDay += 1
         # 如果day天内未有下跌收市值(除数为0)，直接返回
         if FallDay == 0:
             print(day, "天内未有下跌收市值(除数为0)请重新输入天数！")
             return -1
         # 如果day天内未有上涨收市值(除数为0)，直接返回
-        if RoseDay == 0:
-            print(day, "天内未有上涨收市值(除数为0)请重新输入天数！")
-            return -1
+        # if RoseDay == 0:
+            # print(day, "天内未有上涨收市值(除数为0)请重新输入天数！")
+            # return -1
         # 计算RS值，RS = X天内上涨收市价的平均值  ÷ X天内下跌收市价的平均值
-        RS = (RosePrcie / RoseDay) / (FallPrice / FallDay)
+        # RS = (RosePrcie / RoseDay) / (FallPrice / FallDay)
+        RS = (RosePrcie / day) / (FallPrice / day)
         # RSI = 100 – (100÷（1+RS）)
         RSI = 100 - (100 / (1 + RS))
         return RSI
 
     @staticmethod
+    @lru_cache(100)
     # 递归函数，计算12日的EMA，计算公式：EMA（12）=前一日的EMA(12)×11÷13+今日收盘价×2÷13  zzc
     # 参数index为要计算EMA_12的日期，所在 *数据数组* 中的下标
     def CaculateEMA_12(index):
@@ -100,6 +104,7 @@ class IndexAnalysis:
         return IndexAnalysis.CaculateEMA_12(index - 1) * 11 / 13 + dataFrame.loc[index][columnName_5] * 2 / 13
 
     @staticmethod
+    @lru_cache(100)
     # 递归函数，计算26日EMA，计算公式：EMA（26）=前一日的EMA(26)×25÷27+今日收盘价×2÷27  zzc
     # 参数index为要计算EMA_26的日期，所在 *数据数组* 中的下标
     def CaculateEMA_26(index):
@@ -114,6 +119,7 @@ class IndexAnalysis:
         return IndexAnalysis.CaculateEMA_26(index - 1) * 25 / 27 + dataFrame.loc[index][columnName_5] * 2 / 27
 
     @staticmethod
+    @lru_cache(100)
     # 递归函数，计算平滑移动平均值DEA  zzc
     # 参数index为要计算DEA的日期，所在 *数据数组* 中的下标
     def CaculateDEA(index):
@@ -161,7 +167,19 @@ class IndexAnalysis:
                 MACDstr += str(dataStr) + " 向下穿越\n"
                 # print("向下穿越")
 
-
+    @staticmethod
+    # 分析日线级别RSI背离情况 zzc
+    # 参数trend为0，1分别表示上涨和下跌趋势;参数penultimate_index表示倒数第二个高点/低点所在数据数组下标
+    # 参数last_index 表示倒数第一个高点/低点所在数据数组下标（上涨趋势中，即trend=0，取高点，反之低点）
+    def AnalyzeRSI(trend, penultimate_index, last_index):
+        if trend == 0:
+            if IndexAnalysis.CaculateRSI(penultimate_index, RSIday) > IndexAnalysis.CaculateRSI(last_index, RSIday):
+                print("上升趋势中，新的收盘价高点对应的RSI值低于旧收盘价高点对应的RSI值")
+        elif trend == 1:
+            if IndexAnalysis.CaculateRSI(penultimate_index, RSIday) < IndexAnalysis.CaculateRSI(last_index, RSIday):
+                print("下降趋势中，新的收盘价低点对应RSI值高于旧收盘价低点对应的RSI值")
+        else:
+            print("计算RSI背离情况中，趋势输入有误")
 
     @staticmethod
     # 获取在数据数组dataframe中，下标为dataindex的数据的对应日期
@@ -173,7 +191,6 @@ class IndexAnalysis:
     # 分析RSI背离情况 zzc
     # 参数为zmx提供的数组
     def AnalyzeRSI(trend_array):
-        print(11111 , trend_array)
         for element in trend_array:
             global RSIstr
             if element[0] == 1:  # 说明处于上升趋势
@@ -181,22 +198,17 @@ class IndexAnalysis:
                 if (IndexAnalysis.CaculateRSI(element[2], RSIday)  # element[2]表示倒数第二个高点
                         > IndexAnalysis.CaculateRSI(element[3], RSIday)):  # element[3]表示最后一个高点
                     date = IndexAnalysis.read_date(element[1])
-                    datelast = IndexAnalysis.read_date(element[3])
-                    datepenultimate = IndexAnalysis.read_date(element[2])
-                    RSIstr += "对于" + date + "来说：在上升趋势" + datepenultimate + "到" + datelast + "中，新的收盘价高点对应的RSI值低于旧收盘价高点对应的RSI值\n"
+                    RSIstr += date + " 上升趋势中，新的收盘价高点对应的RSI值低于旧收盘价高点对应的RSI值\n"
             elif element[0] == 2:  # 说明处于下降趋势
                 # 下降趋势中，新的收盘价低点对应RSI值高于旧收盘价低点对应的RSI值，给予提示
                 if (IndexAnalysis.CaculateRSI(element[2], RSIday)  # element[2]表示倒数第二个低点
                         < IndexAnalysis.CaculateRSI(element[3], RSIday)):  # element[3]表示最后一个低点
                     date = IndexAnalysis.read_date(element[1])
-                    datelast = IndexAnalysis.read_date(element[3])
-                    datepenultimate = IndexAnalysis.read_date(element[2])
-                    RSIstr += "对于" + date + "来说：在下降趋势" + datepenultimate + "到" + datelast + "中，新的收盘价低点对应RSI值高于旧收盘价低点对应的RSI值\n"
+                    RSIstr += date + " 下降趋势中，新的收盘价低点对应RSI值高于旧收盘价低点对应的RSI值\n"
 
     @staticmethod
     # 输出技术指标分析结果 zzc
     def Output():
-        print("递归计算EMA(12),EMA(26),DEA等指标，请耐心等待\n")
         IndexAnalysis.Initiallize()
         for index in range(0, DateIndex + 1):
             RSI = IndexAnalysis.CaculateRSI(index, RSIday)
@@ -216,14 +228,9 @@ class IndexAnalysis:
                 continue
 
         result = []
-        if temStr1 == "":
+        if (temStr1 == ""):
             temStr1 = "无出现超卖或超买情况\n"
         result.append(temStr1[:-1])
-        global RSIstr, MACDstr
-        if RSIstr == "":
-            RSIstr = "没有出现RSI指标背离情况\n"
         result.append(RSIstr[:-1])
-        if MACDstr == "":
-            MACDstr = "没有出现穿越情况\n"
         result.append(MACDstr[:-1])
         return result
