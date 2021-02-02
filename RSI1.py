@@ -1,7 +1,7 @@
 import pandas as pd
 from functools import lru_cache
 
-dataFrame = pd.read_excel('D:/aaa/data/testData1.xlsx')
+dataFrame = pd.read_excel('data/testData.xlsx')
 DateIndex = -1  # 用户输入的时间对应的数据，所在 *数据数组* 中的下标
 RSIday = 0  # 计算RSI值的时间参数
 MACDstr = ""  # 分析MACD值得到的分析结果字符串
