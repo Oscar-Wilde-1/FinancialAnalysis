@@ -87,13 +87,13 @@ class averageLine:
         '''
         if MA_T > MA_Tpre and (MA_T > P_close and Ppre_close < MA_Tpre):
             date = self.date[T]
-            res = str(date.year) + "/" + str(date.month) + "/" + str(date.day) + ": 单均线判断：向下穿越\n"
+            res = str(date.year) + "/" + str(date.month) + "/" + str(date.day) + ": %d 日单均线判断：向下穿越，提示卖出！\n"%(self.N)
             print(res)
             return res
 
         elif MA_T < MA_Tpre and (MA_T < P_close and Ppre_close > MA_Tpre):
             date = self.date[T]
-            res = str(date.year) + "/" + str(date.month) + "/" + str(date.day) + ": 单均线判断：向上穿越\n"
+            res = str(date.year) + "/" + str(date.month) + "/" + str(date.day) + ": %d 日单均线判断：向上穿越，提示买入！\n"%(self.N)
             print(res)
             return res
         else:
@@ -121,16 +121,16 @@ class averageLine:
         if Ptm > Ptm_pre and Ptn > Ptn_pre:
             if Ptn_pre < Ptm_pre and Ptn > Ptm_pre:
                 date = self.date[T]
-                res = str(date.year) + "/" + str(date.month) + "/" + str(date.day) + ": 双均线判断：%d 日均线向上穿越 %d 日均线\n" % (N, M)
+                res = str(date.year) + "/" + str(date.month) + "/" + str(date.day) + ": 双均线判断：%d 日均线向上穿越 %d 日均线，提示买入！\n" % (N, M)
                 print(res)
                 return res
         if Ptm < Ptm_pre and Ptn < Ptn_pre:
             date = self.date[T]
-            res = str(date.year) + "/" + str(date.month) + "/" + str(date.day) + ": 双均线判断：%d 日均线向下穿越 %d 日均线\n" % (N, M)
+            res = str(date.year) + "/" + str(date.month) + "/" + str(date.day) + ": 双均线判断：%d 日均线向下穿越 %d 日均线，提示卖出！\n" % (N, M)
             print(res)
             return res
         else:
-            res = str("双均线判断：无明显穿越情况")
+            #res = str("双均线判断：无明显穿越情况")
             # print("双均线判断：无明显穿越情况\n")
             # return res
             return ""

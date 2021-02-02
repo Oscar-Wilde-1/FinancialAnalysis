@@ -375,7 +375,7 @@ class Trend:
                     if interval[0] > temp_up[1]:
                         # 前后上升区间不再连续，将原来的区间放入大数组，更新当前区间
                         up.append(temp_up)
-                        temp_up=[]
+                        temp_up = []
                         temp_up.append(interval[0])
                         temp_up.append(interval[1])
                     elif interval[1] > temp_up[1]:
@@ -389,7 +389,7 @@ class Trend:
                     if interval[0] > temp_down[1]:
                         # 前后上升区间不再连续，将原来的区间放入大数组，更新当前区间
                         down.append(temp_down)
-                        temp_down=[]
+                        temp_down = []
                         temp_down.append(interval[0])
                         temp_down.append(interval[1])
                     elif interval[1] > temp_down[1]:
@@ -411,7 +411,7 @@ class Trend:
                           + "--" + str(down[i][1].year) + "/" + str(down[i][1].month) + "/" + str(down[i][1].day) + "  "
 
         result = up_result + "\n" + down_result
-        print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!",result)
+        print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!", result)
         return result
 
     # 突破判断
@@ -468,17 +468,24 @@ class Trend:
         trendResult = Trend.trend_judge(noContinuity[0], noContinuity[1], noContinuity[2], noContinuity[3])
 
         if trendResult[0] == 3:
-            result.append(interval+"\n"+"当天不存在趋势")
+            # result.append(interval + "\n" + "当天不存在趋势")
+            result.append("当前品种趋势为盘整")
         elif trendResult[0] == 1:
-            result.append(interval+"\n"+"当天满足上升趋势，上升区间为：" +
-                          str(trendResult[1][0].year) + "/" + str(trendResult[1][0].month) + "/" + str(trendResult[1][0].day)
-                          + "--" +
-                          str(trendResult[1][1].year) + "/" + str(trendResult[1][1].month) + "/" + str(trendResult[1][1].day))
+           # result.append(interval + "\n" + "当天满足上升趋势，上升区间为：" +
+            #              str(trendResult[1][0].year) + "/" + str(trendResult[1][0].month) + "/" + str(
+            #    trendResult[1][0].day)
+            #              + "--" +
+            #              str(trendResult[1][1].year) + "/" + str(trendResult[1][1].month) + "/" + str(
+            #    trendResult[1][1].day))
+            result.append("当前品种趋势为上涨")
         else:
-            result.append(interval+"\n"+"当天满足下降趋势，下降区间为：" +
-                          str(trendResult[1][0].year) + "/" + str(trendResult[1][0].month) + "/" + str(trendResult[1][0].day)
-                          + "--" +
-                          str(trendResult[1][1].year) + "/" + str(trendResult[1][1].month) + "/" + str(trendResult[1][1].day))
+           # result.append(interval + "\n" + "当天满足下降趋势，下降区间为：" +
+           #               str(trendResult[1][0].year) + "/" + str(trendResult[1][0].month) + "/" + str(
+           #     trendResult[1][0].day)
+           #               + "--" +
+           #               str(trendResult[1][1].year) + "/" + str(trendResult[1][1].month) + "/" + str(
+           #     trendResult[1][1].day))
+            result.append("当前品种趋势为上涨")
 
         print("\n突破判断如下：")
         breakResult = Trend.break_judge(noContinuity[0], noContinuity[1])
