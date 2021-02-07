@@ -50,8 +50,8 @@ class averageLine:
 
     #   设置双均线的接口
     def setDoubleTime(self, M, N):
-        if M < N:
-            print("M must > N!")
+        if M >= N:
+            print("M must < N!")
             return
         self.M = M
         self.doubleN = N
@@ -85,15 +85,15 @@ class averageLine:
         '''
         单均线判断是向上还是向下
         '''
-        if MA_T > MA_Tpre and (MA_T > P_close and Ppre_close < MA_Tpre):
+        if MA_T > MA_Tpre and (MA_T > P_close and Ppre_close > MA_Tpre):
             date = self.date[T]
-            res = str(date.year) + "/" + str(date.month) + "/" + str(date.day) + ": %d 日单均线判断：向下穿越，提示卖出！\n"%(self.N)
+            res = str(date.year) + "/" + str(date.month) + "/" + str(date.day) + ": 单均线判断：向下穿越%d 日均线，提示卖出！\n"%(self.N)
             print(res)
             return res
 
-        elif MA_T < MA_Tpre and (MA_T < P_close and Ppre_close > MA_Tpre):
+        elif MA_T < MA_Tpre and (MA_T < P_close and Ppre_close < MA_Tpre):
             date = self.date[T]
-            res = str(date.year) + "/" + str(date.month) + "/" + str(date.day) + ": %d 日单均线判断：向上穿越，提示买入！\n"%(self.N)
+            res = str(date.year) + "/" + str(date.month) + "/" + str(date.day) + ": 单均线判断：向上穿越%d 日均线，提示买入！\n"%(self.N)
             print(res)
             return res
         else:
@@ -104,8 +104,8 @@ class averageLine:
         '''
         双均线技术指标
         '''
-        if M <= N:
-            print("M must > N !")
+        if M >= N:
+            print("M must < N !")
             return
 
         MA_T_m = self.getMA(T, M)
@@ -118,15 +118,14 @@ class averageLine:
         '''
         双均线价格比较
         '''
-        if Ptm > Ptm_pre and Ptn > Ptn_pre:
-            if Ptn_pre < Ptm_pre and Ptn > Ptm_pre:
-                date = self.date[T]
-                res = str(date.year) + "/" + str(date.month) + "/" + str(date.day) + ": 双均线判断：%d 日均线向上穿越 %d 日均线，提示买入！\n" % (N, M)
-                print(res)
-                return res
-        if Ptm < Ptm_pre and Ptn < Ptn_pre:
+        if Ptn < Ptm and Ptn_pre > Ptm_pre:
             date = self.date[T]
-            res = str(date.year) + "/" + str(date.month) + "/" + str(date.day) + ": 双均线判断：%d 日均线向下穿越 %d 日均线，提示卖出！\n" % (N, M)
+            res = str(date.year) + "/" + str(date.month) + "/" + str(date.day) + ": 双均线判断：%d 日均线向上穿越 %d 日均线，提示买入！\n" % (M, N)
+            print(res)
+            return res
+        if Ptm < Ptn and Ptn_pre < Ptm_pre:
+            date = self.date[T]
+            res = str(date.year) + "/" + str(date.month) + "/" + str(date.day) + ": 双均线判断：%d 日均线向下穿越 %d 日均线，提示卖出！\n" % (M, N)
             print(res)
             return res
         else:
@@ -148,7 +147,7 @@ class averageLine:
                 res1.append(res)
                 res1.append("\n")
         # res1 = self.singleAverageCompare( self.T,self.N )
-        for j in range(0, self.T - self.M):
+        for j in range(0, self.T - self.doubleN):
             res = self.doubleAveraqgeCompare(self.T - j, self.M, self.doubleN)
             if len(res) > 0:
                 res2.append(res)

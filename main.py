@@ -20,15 +20,16 @@ dataFrame = pd.read_excel(filePath)
 
 
 def InputInfo():
+    print("请输入当前日期T，程序将会输出从数据集起始日期到当前日期T范围内的技术指标情况。")
     year = int(input("输入年: "))
     month = int(input("输入月: "))
     day = int(input("输入日: "))  # 输入需要判断的日期
-    tempCycle = int(input("输入周期长度："))  # 输入周期长度
-    RSIRange = int(input("请输入用来计算RSI值的时间范围："))  # 输入RSI值的时间范围
+    tempCycle = int(input("输入趋势判断功能中的周期长度L："))  # 输入周期长度
+    RSIRange = int(input("请输入用来计算RSI值的时间范围X："))  # 输入RSI值的时间范围
     dateStr = str(year) + "-" + str(month) + "-" + str(day)
-    NSingle = int(input("输入单均线周期N："))
-    MDouble = int(input("输入双均线周期M："))
-    NDouble = int(input("输入双均线周期N："))
+    NSingle = int(input("输入单均线交叉信号判断功能中的单均线周期N："))
+    MDouble = int(input("输入双均线交叉信号判断功能中的双均线周期M："))
+    NDouble = int(input("输入双均线交叉信号判断功能中的双均线周期N："))
     df1 = dataFrame.loc[(dataFrame['Unnamed: 0'] == dateStr)]
     if df1.empty:
         print("输入日期错误！请重新输入！")
