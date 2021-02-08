@@ -50,9 +50,10 @@ class Candle:
                 date = workbook.iloc[i][0]
                 if trend == 1:
                     string = string + (str(date.year) + "/" + str(date.month) + "/" + str(date.day) + "  看跌吞没\n")
+                    flag = False
                 elif trend == 2:
                     string = string + (str(date.year) + "/" + str(date.month) + "/" + str(date.day) + "  看涨吞没\n")
-                flag = False
+                    flag = False
 
             # 乌云盖顶
             if workbook.iloc[i][1] > workbook.iloc[i - 1][2] and workbook.iloc[i][4] < (
@@ -62,7 +63,7 @@ class Candle:
                 if Trend.judgeTrend(date.year, date.month, date.day, cycle) == 1:
                     date = workbook.iloc[i][0]
                     string = string + (str(date.year) + "/" + str(date.month) + "/" + str(date.day) + "  乌云盖顶\n")
-                flag = False
+                    flag = False
 
         if flag:
             string = string + "该段时间内无形态\n"
