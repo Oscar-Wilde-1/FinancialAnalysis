@@ -68,4 +68,15 @@ class Candle:
         if flag:
             string = string + "该段时间内无形态\n"
 
-        return string[:-1]
+        while string.count("\n") > 5:
+            string = string[string.find("\n")+1:]
+        n = string.find("\n")
+        while n >= 0:
+            string = string[:n] + "                    " + string[n + 1:]
+            n = string.find("\n", n + 1)
+            if n >= 0:
+                string = string[:n] + "                    " + string[n + 1:]
+                n = string.find("\n", n + 1)
+                if n >= 0:
+                    n = string.find("\n", n + 1)
+        return string
