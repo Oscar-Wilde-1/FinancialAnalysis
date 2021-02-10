@@ -1,0 +1,185 @@
+<html>
+<head>
+    <meta charset="utf-8">
+    <link rel="icon" href="https://jscdn.com.cn/highcharts/images/favicon.ico">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style>
+    </style>
+    <script src="https://code.highcharts.com.cn/jquery/jquery-1.8.3.min.js"></script>
+    <script src="https://code.highcharts.com.cn/highstock/highstock.js"></script>
+    <script src="https://code.highcharts.com.cn/highcharts/modules/exporting.js"></script>
+    <script src="https://code.highcharts.com.cn/highcharts-plugins/highcharts-zh_CN.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.13.1/xlsx.full.min.js"></script>
+    <script src="https://rawgithub.com/highcharts/draggable-legend/master/draggable-legend.js"></script>
+</head>
+<body>
+<div id="container" style="min-width:400px;height:600px"></div>
+<input type="file" id="excel-file">
+<script>
+    $('#excel-file').change(function (e) {
+        var files = e.target.files;
+
+        var fileReader = new FileReader();
+        fileReader.onload = function (ev) {
+            try {
+                var data = ev.target.result,
+                    workbook = XLSX.read(data, {type: 'binary'}),
+                    temp = []; // 存储获取到的数据
+            } catch (e) {
+                console.log('文件类型不正确');
+                return;
+            }
+
+            // 遍历每张表读取
+            for (var sheet in workbook.Sheets) {
+                if (workbook.Sheets.hasOwnProperty(sheet)) {
+                    temp = temp.concat(XLSX.utils.sheet_to_json(workbook.Sheets[sheet]));
+                }
+            }
+
+            // 蜡烛数据
+            data = [];
+            for (let i = 0; i < temp.length; i++) {
+                var t = temp[i]
+                var date = new Date(t['__EMPTY']);
+                data.push([date.getTime(), parseFloat(t['OPEN']), parseFloat(t['HIGH']), parseFloat(t['LOW']), parseFloat(t['CLOSE'])])
+            }
+            
+            // 均线数据
+            var ma5 = [];//5日均线
+            var num = 5;
+            for (let i = 0; i < temp.length - num + 1; i++) {
+                var total = 0.0;
+                for (let j = 0; j < num; j++) {
+                    total += data[i+j][4];
+                }
+                ma5.push([data[i+num-1][0],total/num]);
+            }
+
+            var ma10 = [];//10日均线
+            var num = 10;
+            for (let i = 0; i < temp.length - num + 1; i++) {
+                var total = 0.0;
+                for (let j = 0; j < num; j++) {
+                    total += data[i+j][4];
+                }
+                ma10.push([data[i+num-1][0],total/num]);
+            }
+
+            var ma20 = [];//20日均线
+            var num = 20;
+            for (let i = 0; i < temp.length - num + 1; i++) {
+                var total = 0.0;
+                for (let j = 0; j < num; j++) {
+                    total += data[i+j][4];
+                }
+                ma20.push([data[i+num-1][0],total/num]);
+            }
+
+            Highcharts.setOptions({
+                lang: {
+                    rangeSelectorZoom: ''
+                }
+            });
+            $('#container').highcharts('StockChart', {
+                rangeSelector: {
+                    selected: 5,
+                    inputDateFormat: '%Y-%m-%d'
+                },
+                credits: {
+                    enabled: false
+                },
+                title: {
+                    text: 'USDCNY日线图'
+                },
+                xAxis: {
+                    dateTimeLabelFormats: {
+                        millisecond: '%H:%M:%S.%L',
+                        second: '%H:%M:%S',
+                        minute: '%H:%M',
+                        hour: '%H:%M',
+                        day: '%m-%d',
+                        week: '%m-%d',
+                        month: '%y-%m',
+                        year: '%Y'
+                    }
+                },
+                plotOptions: {
+                    series: {
+                        turboThreshold: 100000
+                    }
+                },
+                yAxis: [{
+                    labels: {
+                        align: 'right',
+                        x: -3
+                    },
+                    lineWidth: 2
+                }, {
+                    labels: {
+                        align: 'right',
+                        x: -3
+                    },
+                    offset: 0,
+                    lineWidth: 2
+                }],
+                legend: {
+                    labelFormatter: function () {
+                        return this.name + "xx";
+                    },
+                    title: {
+                        text: ':: 点击拖动'
+                    },
+                    backgroundColor: 'white',
+                    floating: true,
+                    shadow: true,
+                    layout: 'vertical',
+                    enabled: true,
+                    width: 150,
+                    reversed: true,
+                    symbolWidth: 40,
+                    borderRadius: 10,
+                    borderWidth: 2,
+                    draggable: true,
+                    layout: 'vertical',
+                    align: 'left',
+                    verticalAlign: 'top',
+                },
+                series: [{
+                    showInLegend: false,
+                    type: 'candlestick',
+                    name: 'USDCNY',
+                    data: data,
+                    color: 'green',
+                    lineColor: 'green',
+                    upColor: 'red',
+                    upLineColor: 'red',
+                    dataGrouping: {
+                        enabled: false
+                    }
+                },{
+                    name: '5日均线',
+                    data: ma5,
+                    color:"yellow"
+                },{
+                    name: '10日均线',
+                    data: ma10
+                },{
+                    name: '20日均线',
+                    data: ma20
+                },]
+            });
+
+
+        };
+
+        fileReader.readAsBinaryString(files[0]);
+    });
+
+    // 备用
+    // $.getJSON('', function (data) {
+    //
+    // });
+</script>
+</body>
+</html>
