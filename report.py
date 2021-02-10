@@ -65,15 +65,36 @@ class Report:
         for i in range(0, len(header)):
             table.cell(i, 0).text = header[i]
 
-        # test
+        # text
         table.cell(0, 1).text = "USDCNY"
         table.cell(1, 1).text = array[0][0]
-        table.cell(2, 1).text = array[3][0]
-        table.cell(3, 1).text = array[3][1]
-        table.cell(4, 1).text = array[2][0]
-        table.cell(5, 1).text = array[2][1]
+        table.cell(2, 1).text = array[3][0][:9]
+        table.cell(3, 1).text = array[3][1][:9]
+
+        string = ""
+        for ele in array[2][0]:
+            string += ele
+        n = string.find("\n")
+        while n >= 0:
+            string = string[:n] + "        " + string[n + 1:]
+            n = string.find("\n", n + 1)
+            if n >= 0:
+                n = string.find("\n", n + 1)
+
+        table.cell(4, 1).text = string
+
+        string = array[2][1]
+        while string.count("\n") > 5:
+            string = string[string.find("\n")+1:]
+
+        table.cell(5, 1).text = string
         table.cell(6, 1).text = array[2][2]
         table.cell(7, 1).text = array[1]
-        table.cell(8, 1).text = array[0][1]
+
+        string = array[0][1]
+        n = string.find("\n")
+        string = string[:n] + "            " + string[n + 1:]
+
+        table.cell(8, 1).text = string
         # 保存docx
         document.save("result/report_"+time.strftime("%Y_%m_%d_%H_%M_%S", time.localtime())+".docx")
