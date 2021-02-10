@@ -82,12 +82,7 @@ class Report:
                 n = string.find("\n", n + 1)
 
         table.cell(4, 1).text = string
-
-        string = array[2][1]
-        while string.count("\n") > 5:
-            string = string[string.find("\n")+1:]
-
-        table.cell(5, 1).text = string
+        table.cell(5, 1).text = array[2][1]
         table.cell(6, 1).text = array[2][2]
         table.cell(7, 1).text = array[1]
 
