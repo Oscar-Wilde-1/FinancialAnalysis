@@ -22,7 +22,7 @@ class Report:
         document.styles['Normal'].font.size = Pt(9)
         document.styles['Normal']._element.rPr.rFonts.set(qn('w:eastAsia'), u'微软雅黑')
 
-        # 添加标题
+        # 添加页眉
         header = document.sections[0].header
         p = header.paragraphs[0]
         p.paragraph_format.alignment = WD_ALIGN_PARAGRAPH.CENTER
