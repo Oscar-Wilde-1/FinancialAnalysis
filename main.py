@@ -40,6 +40,9 @@ def InputInfo():
         if tempDate < 4 * tempCycle:
             print("该日期之前的数据量不足以进行分析！请重新输入！")
             InputInfo()
+        elif MDouble >= NDouble:
+            print("双均线中M必须小于N！")
+            InputInfo()
         else:
             return year, month, day, tempDate, tempCycle, RSIRange, NSingle, MDouble, NDouble
 

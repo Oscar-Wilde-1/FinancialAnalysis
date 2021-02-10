@@ -39,13 +39,14 @@ class averageLine:
         self.T = indexVal.index.values[0]
         print(self.close_price[self.T])
         # print(type(self.T))
-        self.N = 0
-        self.M = 0
-        self.doubleN = 0
+        self.N = 1
+        self.M = 1
+        self.doubleN = 1
 
     #   设置单均线输入的接口
     #   接口，输入依次为周期和
     def setSingelTime(self, N):
+        #print(N)
         self.N = N
 
     #   设置双均线的接口
@@ -61,11 +62,14 @@ class averageLine:
         获取n日均线价格平均
         '''
         avg = 0
+        cnt = N
         for i in range(1, N + 1):
-            # print( i )
-            avg += self.close_price[T - i]
+            if self.close_price[ T-i ] == 0:
+                cnt -= 1
+            else:
+                avg += self.close_price[T - i]
 
-        return avg / N
+        return avg / cnt
 
     def singleAverageCompare(self, T, N):
         '''
@@ -87,13 +91,13 @@ class averageLine:
         '''
         if MA_T > MA_Tpre and (MA_T > P_close and Ppre_close > MA_Tpre):
             date = self.date[T]
-            res = str(date.year) + "/" + str(date.month) + "/" + str(date.day) + ": 单均线判断：向下穿越%d 日均线，提示卖出！\n"%(self.N)
+            res = str(date.year) + "/" + str(date.month) + "/" + str(date.day) + ": 单均线判断：向下穿越%d 日均线，出现做空机会！\n"%(self.N)
             print(res)
             return res
 
         elif MA_T < MA_Tpre and (MA_T < P_close and Ppre_close < MA_Tpre):
             date = self.date[T]
-            res = str(date.year) + "/" + str(date.month) + "/" + str(date.day) + ": 单均线判断：向上穿越%d 日均线，提示买入！\n"%(self.N)
+            res = str(date.year) + "/" + str(date.month) + "/" + str(date.day) + ": 单均线判断：向上穿越%d 日均线，出现做多机会！\n"%(self.N)
             print(res)
             return res
         else:
@@ -120,12 +124,12 @@ class averageLine:
         '''
         if Ptn < Ptm and Ptn_pre > Ptm_pre:
             date = self.date[T]
-            res = str(date.year) + "/" + str(date.month) + "/" + str(date.day) + ": 双均线判断：%d 日均线向上穿越 %d 日均线，提示买入！\n" % (M, N)
+            res = str(date.year) + "/" + str(date.month) + "/" + str(date.day) + ": 双均线判断：%d 日均线向上穿越 %d 日均线，出现做多机会！\n" % (M, N)
             print(res)
             return res
         if Ptm < Ptn and Ptn_pre < Ptm_pre:
             date = self.date[T]
-            res = str(date.year) + "/" + str(date.month) + "/" + str(date.day) + ": 双均线判断：%d 日均线向下穿越 %d 日均线，提示卖出！\n" % (M, N)
+            res = str(date.year) + "/" + str(date.month) + "/" + str(date.day) + ": 双均线判断：%d 日均线向下穿越 %d 日均线，出现做空机会！\n" % (M, N)
             print(res)
             return res
         else:
