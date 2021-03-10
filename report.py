@@ -91,5 +91,6 @@ class Report:
         string = string[:n] + "            " + string[n + 1:]
 
         table.cell(8, 1).text = string
+        print(array)
         # 保存docx
         document.save("result/report_"+time.strftime("%Y_%m_%d_%H_%M_%S", time.localtime())+".docx")

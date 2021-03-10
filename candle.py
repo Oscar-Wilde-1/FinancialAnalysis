@@ -10,7 +10,7 @@ class Candle:
     @staticmethod
     def judge(year, month, day, _year, _month, _day, cycle):
         string = ''
-
+        json_result = []
         # 打开文件，获取excel文件的workbook（工作簿）对象
         workbook = pd.DataFrame(pd.read_excel("data/testData.xlsx"))
         workbook.columns = ['datetime', 'Open', 'High', 'Low', 'Close']
@@ -49,9 +49,11 @@ class Candle:
                 trend = Trend.judgeTrend(date.year, date.month, date.day, cycle)
                 date = workbook.iloc[i][0]
                 if trend == 1:
+                    json_result.append(str(date.year) + "/" + str(date.month) + "/" + str(date.day) + "  看跌吞没")
                     string = string + (str(date.year) + "/" + str(date.month) + "/" + str(date.day) + "  看跌吞没\n")
                     flag = False
                 elif trend == 2:
+                    json_result.append(str(date.year) + "/" + str(date.month) + "/" + str(date.day) + "  看涨吞没")
                     string = string + (str(date.year) + "/" + str(date.month) + "/" + str(date.day) + "  看涨吞没\n")
                     flag = False
 
@@ -62,14 +64,16 @@ class Candle:
                 date = workbook.iloc[i - 1][0]
                 if Trend.judgeTrend(date.year, date.month, date.day, cycle) == 1:
                     date = workbook.iloc[i][0]
+                    json_result.append(str(date.year) + "/" + str(date.month) + "/" + str(date.day) + "  乌云盖顶")
                     string = string + (str(date.year) + "/" + str(date.month) + "/" + str(date.day) + "  乌云盖顶\n")
                     flag = False
 
         if flag:
+            json_result.append("该段时间内无形态")
             string = string + "该段时间内无形态\n"
 
         while string.count("\n") > 5:
-            string = string[string.find("\n")+1:]
+            string = string[string.find("\n") + 1:]
         n = string.find("\n")
         while n >= 0:
             string = string[:n] + "                    " + string[n + 1:]
@@ -79,4 +83,4 @@ class Candle:
                 n = string.find("\n", n + 1)
                 if n >= 0:
                     n = string.find("\n", n + 1)
-        return string
+        return string, json_result
