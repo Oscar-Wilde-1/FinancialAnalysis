@@ -19,6 +19,7 @@ from flask import Flask, render_template, request, make_response, send_file
 from flask_cors import CORS
 
 import json
+import os
 
 filePath = 'data/testData.xlsx'
 dataFrame = pd.read_excel(filePath)
@@ -96,7 +97,7 @@ def details():
                 array.append(index_result)
                 array.append([res1, res2])
 
-                Report.report(array, inputInfo[0], inputInfo[1], inputInfo[2])
+                # Report.report(array, inputInfo[0], inputInfo[1], inputInfo[2])
             except Exception:
                 errcode = 208  # 生成报告出错
                 return {"data": ret, "errcode": errcode}
@@ -117,7 +118,7 @@ def details():
         # trend_json_result:趋势计算结果
 
         # array重组
-        new_array[0].append(trend_json_result[0][1])
+        new_array[0].append(trend_json_result[0][0])
         new_array[7].append(trend_json_result[1][0])
         new_array[7].append(trend_json_result[1][1])
         for i in range(0, len(json_res1)):
@@ -153,6 +154,32 @@ def details():
         return json_result
     else:
         return {"data": ret, "errcode": errcode}
+
+
+@app.route('/download', methods=['POST', 'GET'])
+def download():
+    report_array = [[] for _ in range(8)]
+
+    download_data = request.get_data()
+    download_data = json.loads(download_data)
+    print(download_data)
+    uid = download_data['UID']
+    result = download_data['result']
+    for i in range(0, len(result)):
+        unit_dict = {}
+        unit_dict = result[i]
+        subs_list = []
+        subs_list = unit_dict['subs']
+        for j in range(0, len(subs_list)):
+            title_dict = {}
+            title_dict = subs_list[j]
+            print(subs_list[j])
+            print(j)
+            report_array[i].append(title_dict['title'])
+    print(report_array)
+
+    # os.remove('result/report_2021_03_10_12_10_07.docx')
+    return send_file('data/testData.xlsx')
 
 
 if __name__ == '__main__':
