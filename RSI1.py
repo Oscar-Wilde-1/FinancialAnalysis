@@ -79,8 +79,8 @@ class IndexAnalysis:
             return -1
         # 如果day天内未有上涨收市值(除数为0)，直接返回
         # if RoseDay == 0:
-            # print(day, "天内未有上涨收市值(除数为0)请重新输入天数！")
-            # return -1
+        # print(day, "天内未有上涨收市值(除数为0)请重新输入天数！")
+        # return -1
         # 计算RS值，RS = X天内上涨收市价的平均值  ÷ X天内下跌收市价的平均值
         # RS = (RosePrcie / RoseDay) / (FallPrice / FallDay)
         RS = (RosePrcie / day) / (FallPrice / day)
@@ -160,11 +160,11 @@ class IndexAnalysis:
             global MACDstr
             if MACD_before < 0 and MACD > 0:  # 前一天MACD值小于0，今天MACD值大于0，向上穿越
                 dataStr = IndexAnalysis.read_date(Index)
-                MACDstr += str(dataStr) + " 向上穿越\n"
+                MACDstr += str(dataStr) + " 向上穿越,出现做多机会\n"
                 # print("向上穿越")
             if MACD_before > 0 and MACD < 0:  # 前一天MACD值大于0，今天MACD值小于0，向下穿越
                 dataStr = IndexAnalysis.read_date(Index)
-                MACDstr += str(dataStr) + " 向下穿越\n"
+                MACDstr += str(dataStr) + " 向下穿越,出现做空机会\n"
                 # print("向下穿越")
 
     @staticmethod
@@ -210,27 +210,95 @@ class IndexAnalysis:
     # 输出技术指标分析结果 zzc
     def Output():
         IndexAnalysis.Initiallize()
+        temStr1 = ""
         for index in range(0, DateIndex + 1):
-            RSI = IndexAnalysis.CaculateRSI(index, RSIday)
+            # RSI指标保留整数
+            RSI = round(IndexAnalysis.CaculateRSI(index, RSIday))
             IndexAnalysis.MACDanalyze(index)
             # 当RSI值大于70时，提示超买。当RSI值小于30时，提示超卖。
             if RSI > 70:
                 date = IndexAnalysis.read_date(index)
-                temStr1 += str(date) + "RSI值为" + str(RSI) + ",超买\n"
-                print(temStr1)
+                temStr1 += str(date) + " RSI值为" + str(RSI) + ",出现做多机会\n"
+                # print(temStr1)
                 # print("RSI值为：", RSI, "超买")
             elif RSI < 30 and RSI != -1:
                 date = IndexAnalysis.read_date(index)
-                temStr1 += str(date) + "RSI值为" + str(RSI) + ",超卖\n"
+                temStr1 += str(date) + " RSI值为" + str(RSI) + ",出现做空机会\n"
                 # print("RSI值为：", RSI, "超卖")
             else:
-                temStr1 = ""
+                temStr1 += ""
                 continue
 
+        print(temStr1)
         result = []
-        if (temStr1 == ""):
-            temStr1 = "无出现超卖或超买情况\n"
-        result.append(temStr1[:-1])
-        result.append(RSIstr[:-1])
-        result.append(MACDstr[:-1])
-        return result
+        json_result = []
+        if temStr1 == "":
+            temStr1 = "无出现做多或做空机会情况\n"
+            result.append(temStr1[:-1])
+            json_result.append(temStr1[:-1])
+        else:
+            str0 = []
+            json_str0 = []
+            strList = temStr1.split('\n')  # 用逗号分割str字符串，并保存到列表
+            if len(strList) > 5:
+                for i in range(-6, -1):
+                    # print(111)
+                    str0.append(strList[i] + "\n")
+                    json_str0.append(strList[i])
+            else:
+                for i in range(0, len(strList) - 1):
+                    # print(222)
+                    str0.append(strList[i] + "\n")
+                    json_str0.append(strList[i])
+            print(str0)
+            print(json_str0)
+            result.append(str0)
+            json_result.append(json_str0)
+
+        global RSIstr
+        if RSIstr == "":
+            RSIstr = "无RSI背离情况\n"
+            result.append(RSIstr[:-1])
+            json_result.append(RSIstr[:-1])
+        else:
+            str0 = []
+            json_str0 = []
+            strList = RSIstr.split('\n')  # 用逗号分割str字符串，并保存到列表
+            if len(strList) > 5:
+                for i in range(-6, -1):
+                    # print(111)
+                    str0.append(strList[i] + "\n")
+                    json_str0.append(strList[i])
+            else:
+                for i in range(0, len(strList) - 1):
+                    # print(222)
+                    str0.append(strList[i] + "\n")
+                    json_str0.append(strList[i])
+            print(str0)
+            result.append(str0)
+            json_result.append(json_str0)
+
+        global MACDstr
+        if MACDstr == "":
+            MACDstr = "无向上或向下穿越情况\n"
+            result.append(MACDstr[:-1])
+            json_result.append(MACDstr[:-1])
+        else:
+            str0 = []
+            json_str0 = []
+            strList = MACDstr.split('\n')  # 用逗号分割str字符串，并保存到列表
+            if len(strList) > 5:
+                for i in range(-6, -1):
+                    # print(MACD111)
+                    str0.append(strList[i] + "\n")
+                    json_str0.append(strList[i])
+            else:
+                for i in range(0, len(strList) - 1):
+                    # print(MACD222)
+                    str0.append(strList[i] + "\n")
+                    json_str0.append(strList[i])
+            print(str0)
+            result.append(str0)
+            json_result.append(json_str0)
+        # result.append(MACDstr[:-1])
+        return result, json_result

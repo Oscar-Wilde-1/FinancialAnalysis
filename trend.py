@@ -431,8 +431,8 @@ class Trend:
         else:
             print("不存在向下跌破现象")
             result2 = "不存在向下跌破现象"
-
-        return result1 + "\n" + result2
+        json_result = [result1, result2]
+        return result1 + "\n" + result2, json_result
 
     # 分析流程入口
     @staticmethod
@@ -442,6 +442,7 @@ class Trend:
         global inputCycle
         inputCycle = cycle
         result = []
+        json_result = []
         maxInfo = Trend.read_max_by_step(inputCycle, dateIndex)
         # print("无重复性的最高点序列如下：")
         # print(maxInfo[0])
@@ -469,28 +470,32 @@ class Trend:
 
         if trendResult[0] == 3:
             # result.append(interval + "\n" + "当天不存在趋势")
-            result.append("当前品种趋势为盘整")
+            result.append("趋势为盘整")
+            json_result.append(result)
         elif trendResult[0] == 1:
-           # result.append(interval + "\n" + "当天满足上升趋势，上升区间为：" +
+            # result.append(interval + "\n" + "当天满足上升趋势，上升区间为：" +
             #              str(trendResult[1][0].year) + "/" + str(trendResult[1][0].month) + "/" + str(
             #    trendResult[1][0].day)
             #              + "--" +
             #              str(trendResult[1][1].year) + "/" + str(trendResult[1][1].month) + "/" + str(
             #    trendResult[1][1].day))
-            result.append("当前品种趋势为上涨")
+            result.append("趋势为上涨")
+            json_result.append(result)
         else:
-           # result.append(interval + "\n" + "当天满足下降趋势，下降区间为：" +
-           #               str(trendResult[1][0].year) + "/" + str(trendResult[1][0].month) + "/" + str(
-           #     trendResult[1][0].day)
-           #               + "--" +
-           #               str(trendResult[1][1].year) + "/" + str(trendResult[1][1].month) + "/" + str(
-           #     trendResult[1][1].day))
-            result.append("当前品种趋势为上涨")
+            # result.append(interval + "\n" + "当天满足下降趋势，下降区间为：" +
+            #               str(trendResult[1][0].year) + "/" + str(trendResult[1][0].month) + "/" + str(
+            #     trendResult[1][0].day)
+            #               + "--" +
+            #               str(trendResult[1][1].year) + "/" + str(trendResult[1][1].month) + "/" + str(
+            #     trendResult[1][1].day))
+            result.append("趋势为上涨")
+            json_result.append(result)
 
         print("\n突破判断如下：")
-        breakResult = Trend.break_judge(noContinuity[0], noContinuity[1])
+        breakResult, json_breakResult = Trend.break_judge(noContinuity[0], noContinuity[1])
         result.append(breakResult)
-        return result
+        json_result.append(json_breakResult)
+        return result, json_result
 
     # 从最后一个时间点向前遍历，得到所有点对应周期的趋势
     @staticmethod
