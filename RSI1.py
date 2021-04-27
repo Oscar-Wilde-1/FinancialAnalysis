@@ -229,13 +229,14 @@ class IndexAnalysis:
                 temStr1 += ""
                 continue
 
-        print(temStr1)
+        # print(temStr1)
         result = []
         json_result = []
         if temStr1 == "":
             temStr1 = "无出现做多或做空机会情况\n"
             result.append(temStr1[:-1])
-            json_result.append(temStr1[:-1])
+            temStr2 = ["无出现做多或做空机会情况"]
+            json_result.append(temStr2)
         else:
             str0 = []
             json_str0 = []
@@ -250,8 +251,8 @@ class IndexAnalysis:
                     # print(222)
                     str0.append(strList[i] + "\n")
                     json_str0.append(strList[i])
-            print(str0)
-            print(json_str0)
+            # print(str0)
+            # print(json_str0)
             result.append(str0)
             json_result.append(json_str0)
 
@@ -259,7 +260,8 @@ class IndexAnalysis:
         if RSIstr == "":
             RSIstr = "无RSI背离情况\n"
             result.append(RSIstr[:-1])
-            json_result.append(RSIstr[:-1])
+            RSIStr2 = ["无RSI背离情况"]
+            json_result.append(RSIStr2)
         else:
             str0 = []
             json_str0 = []
@@ -274,7 +276,7 @@ class IndexAnalysis:
                     # print(222)
                     str0.append(strList[i] + "\n")
                     json_str0.append(strList[i])
-            print(str0)
+            # print(str0)
             result.append(str0)
             json_result.append(json_str0)
 
@@ -282,7 +284,8 @@ class IndexAnalysis:
         if MACDstr == "":
             MACDstr = "无向上或向下穿越情况\n"
             result.append(MACDstr[:-1])
-            json_result.append(MACDstr[:-1])
+            MACDstr2 = ["无向上或向下穿越情况"]
+            json_result.append(MACDstr2)
         else:
             str0 = []
             json_str0 = []
@@ -297,7 +300,7 @@ class IndexAnalysis:
                     # print(MACD222)
                     str0.append(strList[i] + "\n")
                     json_str0.append(strList[i])
-            print(str0)
+            # print(str0)
             result.append(str0)
             json_result.append(json_str0)
         # result.append(MACDstr[:-1])

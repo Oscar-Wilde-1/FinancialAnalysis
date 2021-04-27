@@ -69,7 +69,8 @@ class Candle:
                     flag = False
 
         if flag:
-            json_result.append("该段时间内无形态")
+            temp = "该段时间内无形态"
+            json_result.append(temp)
             string = string + "该段时间内无形态\n"
 
         while string.count("\n") > 5:
