@@ -50,6 +50,20 @@ def details():
     NSingle = data['NSingle']  # 获取单均线交叉信号判断功能中的单均线周期N
     MDouble = data['MDouble']  # 获取双均线交叉信号判断功能中的双均线周期M
     NDouble = data['NDouble']  # 获取双均线交叉信号判断功能中的双均线周期N
+
+    # 默认值
+    if year == 0 and month == 0 and day == 0:
+        temp = workbook.iloc[workbook.shape[0] - 1][0]
+        year = temp.year
+        month = temp.month
+        day = temp.day
+        tempCycle = 2
+        RSIRange = 2
+        dateStr = str(year) + "-" + str(month) + "-" + str(day)
+        NSingle = 10
+        MDouble = 5
+        NDouble = 15
+
     df1 = dataFrame.loc[(dataFrame['Unnamed: 0'] == dateStr)]
     if df1.empty:
         print("输入日期在数据中不存在！请重新输入！")
@@ -96,18 +110,26 @@ def details():
                 index_result, index_json_result = IndexAnalysis.Output()
                 array.append(index_result)
                 array.append([res1, res2])
-
+                #  print("!!!!!!!!!!!!!")
+                # print(array)
                 # Report.report(array, inputInfo[0], inputInfo[1], inputInfo[2])
             except Exception:
                 errcode = 208  # 生成报告出错
                 return {"data": ret, "errcode": errcode}
 
     if errcode == 200:
-
         final_result = {}
         result = json.loads(json.dumps(final_result))
         result['data'] = ret
         result['errcode'] = errcode
+        result['form'] = {
+            "date1": dateStr,
+            "cycle": tempCycle,
+            "rsi": RSIRange,
+            "n1": NSingle,
+            "m": MDouble,
+            "n2": NDouble,
+            },
         # 生成json数据
 
         # 对原有array进行变形
@@ -139,7 +161,7 @@ def details():
         title = ['趋势', 'N日均线价格穿越情况', 'M日、N日均线交叉和穿越情况', 'RSI指标', 'RSI指标背离情况', 'MACD穿越情况', '形态提示', '前期低点、高点是否突破']
         for i in range(0, len(new_array)):
             unit_info = {}
-            unit_info['index'] = i
+            unit_info['index'] = str(i)
             unit_info['title'] = title[i]
             subs_info = []
             for j in range(0, len(new_array[i])):
@@ -158,27 +180,33 @@ def details():
 
 @app.route('/download', methods=['POST', 'GET'])
 def download():
-    report_array = [[] for _ in range(8)]
-
-    download_data = request.get_data()
-    download_data = json.loads(download_data)
-    print(download_data)
-    uid = download_data['UID']
-    result = download_data['result']
-    for i in range(0, len(result)):
-        unit_dict = {}
-        unit_dict = result[i]
-        subs_list = []
-        subs_list = unit_dict['subs']
-        for j in range(0, len(subs_list)):
-            title_dict = {}
-            title_dict = subs_list[j]
-            print(subs_list[j])
-            print(j)
-            report_array[i].append(title_dict['title'])
-    print(report_array)
-
-    # os.remove('result/report_2021_03_10_12_10_07.docx')
+    # report_array = [[] for _ in range(8)]
+    #
+    # download_data = request.get_data()
+    # download_data = json.loads(download_data)
+    # print(download_data)
+    # uid = download_data['UID']
+    # download_year = download_data['year']
+    # download_month = download_data['month']
+    # download_day = download_data['day']
+    # result = download_data['result']
+    # for i in range(0, len(result)):
+    #     unit_dict = {}
+    #     unit_dict = result[i]
+    #     subs_list = []
+    #     subs_list = unit_dict['subs']
+    #     for j in range(0, min(5, len(subs_list))):
+    #         title_dict = {}
+    #         title_dict = subs_list[j]
+    #         # print(subs_list[j])
+    #         # print(j)
+    #         report_array[i].append(title_dict['title'])
+    # print("???????????????????")
+    # print(report_array)
+    # Report.report(report_array, download_year, download_month, download_day, uid)
+    # # os.remove('result/report_2021_03_10_12_10_07.docx')
+    # string = "result/report_" + uid + ".docx"
+    # send_file('data/testData.xlsx')
     return send_file('data/testData.xlsx')
 
 

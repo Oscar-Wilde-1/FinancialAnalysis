@@ -135,6 +135,8 @@ class Trend:
         # 将结果按时间顺序排序，将原数组倒序即可
         MAX_HIGH.reverse()
         MAX_HIGH_DATE.reverse()
+        # print("原始无重复高点数组", MAX_HIGH)
+        # print("原始无重复高点日期数组", MAX_HIGH_DATE)
         return MAX_HIGH, MAX_HIGH_DATE
 
     @staticmethod
@@ -164,8 +166,11 @@ class Trend:
                     pre_min_date = new_min_date
         MIN_LOW.reverse()
         MIN_LOW_DATE.reverse()
+        # print("原始无重复低点数组", MIN_LOW)
+        # print("原始无重复低点日期数组", MIN_LOW_DATE)
         return MIN_LOW, MIN_LOW_DATE
 
+    # 保留连续高点的最高点，连续低点的最低点
     @staticmethod
     def continuity_eliminate(MIN_LOW, MAX_HIGH, MIN_LOW_DATE, MAX_HIGH_DATE):
         # 根据DATE中的时间，按时间顺序将高点和低点对应的两个DATE数组合并，同时用不同的标识符进行区分
@@ -247,6 +252,10 @@ class Trend:
             MIN_LOW_WITHOUT_CONTINUITY.append(minInfo[0])
             MIN_LOW_DATE_WITHOUT_CONTINUITY.append(MIN_LOW_DATE[loc - move + minInfo[1]])
 
+        # print("原始无重复无连续高点数组", MAX_HIGH_WITHOUT_CONTINUITY)
+        # print("原始无重复无连续高点日期数组", MAX_HIGH_DATE_WITHOUT_CONTINUITY)
+        # print("原始无重复无连续低点数组", MIN_LOW_WITHOUT_CONTINUITY)
+        # print("原始无重复无连续低点日期数组", MIN_LOW_DATE_WITHOUT_CONTINUITY)
         return MAX_HIGH_WITHOUT_CONTINUITY, MIN_LOW_WITHOUT_CONTINUITY, MAX_HIGH_DATE_WITHOUT_CONTINUITY, MIN_LOW_DATE_WITHOUT_CONTINUITY
 
     # 寻找list中最大值及其下标
@@ -362,6 +371,7 @@ class Trend:
         down = []
         temp_down = []
         for i in range(4 * inputCycle, last_row + 1, 1):
+            print("transversal_interval对数据集内每一天进行趋势分析，合并所有的上升区间及下降区间：")
             maxInfo = Trend.read_max_by_step(inputCycle, i)
             minInfo = Trend.read_min_by_step(inputCycle, i)
             noContinuity = Trend.continuity_eliminate(minInfo[0], maxInfo[0], minInfo[1], maxInfo[1])
@@ -411,26 +421,45 @@ class Trend:
                           + "--" + str(down[i][1].year) + "/" + str(down[i][1].month) + "/" + str(down[i][1].day) + "  "
 
         result = up_result + "\n" + down_result
-        print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!", result)
+        print("全数据集的上升区间及下降区间", result)
         return result
 
     # 突破判断
     @staticmethod
-    def break_judge(MAX_HIGH_WITHOUT_CONTINUITY, MIN_LOW_WITHOUT_CONTINUITY):
-
-        if Trend.read_close(dateIndex) > MAX_HIGH_WITHOUT_CONTINUITY[-1]:
-            print("向上突破（" + str(MAX_HIGH_WITHOUT_CONTINUITY[-1]) + "）")
-            result1 = str("向上突破（" + str(MAX_HIGH_WITHOUT_CONTINUITY[-1]) + "）")
+    def break_judge(MAX_HIGH_WITHOUT_CONTINUITY, MAX_HIGH_WITHOUT_CONTINUITY_DATE, MIN_LOW_WITHOUT_CONTINUITY,
+                    MIN_LOW_WITHOUT_CONTINUITY_DATE):
+        if Trend.read_date(dateIndex) != MAX_HIGH_WITHOUT_CONTINUITY_DATE[-1]:
+            if Trend.read_close(dateIndex) > MAX_HIGH_WITHOUT_CONTINUITY[-1]:
+                print("向上突破（" + str(MAX_HIGH_WITHOUT_CONTINUITY[-1]) + "）")
+                result1 = str("向上突破（" + str(MAX_HIGH_WITHOUT_CONTINUITY[-1]) + "）")
+            else:
+                print("不存在向上突破现象")
+                result1 = "不存在向上突破现象"
         else:
-            print("不存在向上突破现象")
-            result1 = "不存在向上突破现象"
+            print("!!!!!!!!!!!!!!!!!!!!!已排除当天")
+            if Trend.read_close(dateIndex) > MAX_HIGH_WITHOUT_CONTINUITY[-2]:
+                print("向上突破（" + str(MAX_HIGH_WITHOUT_CONTINUITY[-2]) + "）")
+                result1 = str("向上突破（" + str(MAX_HIGH_WITHOUT_CONTINUITY[-2]) + "）")
+            else:
+                print("不存在向上突破现象")
+                result1 = "不存在向上突破现象"
 
-        if Trend.read_close(dateIndex) < MIN_LOW_WITHOUT_CONTINUITY[-1]:
-            print("向下跌破（" + str(MIN_LOW_WITHOUT_CONTINUITY[-1]) + "）")
-            result2 = str("向下跌破（" + str(MIN_LOW_WITHOUT_CONTINUITY[-1]) + "）")
+        if Trend.read_date(dateIndex) != MIN_LOW_WITHOUT_CONTINUITY_DATE[-1]:
+            if Trend.read_close(dateIndex) < MIN_LOW_WITHOUT_CONTINUITY[-1]:
+                print("向下跌破（" + str(MIN_LOW_WITHOUT_CONTINUITY[-1]) + "）")
+                result2 = str("向下跌破（" + str(MIN_LOW_WITHOUT_CONTINUITY[-1]) + "）")
+            else:
+                print("不存在向下跌破现象")
+                result2 = "不存在向下跌破现象"
         else:
-            print("不存在向下跌破现象")
-            result2 = "不存在向下跌破现象"
+            print("!!!!!!!!!!!!!!!!!!!!!已排除当天")
+            if Trend.read_close(dateIndex) < MIN_LOW_WITHOUT_CONTINUITY[-2]:
+                print("向下跌破（" + str(MIN_LOW_WITHOUT_CONTINUITY[-2]) + "）")
+                result2 = str("向下跌破（" + str(MIN_LOW_WITHOUT_CONTINUITY[-2]) + "）")
+            else:
+                print("不存在向下跌破现象")
+                result2 = "不存在向下跌破现象"
+
         json_break_result = [result1, result2]
 
         return result1 + "\n" + result2, json_break_result
@@ -443,18 +472,19 @@ class Trend:
         global inputCycle
         inputCycle = cycle
         result = []
-        result2=[]
+        result2 = []
         json_result = []
+        print("11111 第一轮正常分析")
         maxInfo = Trend.read_max_by_step(inputCycle, dateIndex)
-        # print("无重复性的最高点序列如下：")
-        # print(maxInfo[0])
-        # print("\n无重复性的最高点序列对应日期如下：")
-        # print(maxInfo[1])
+        print("无重复性的最高点序列如下：")
+        print(maxInfo[0])
+        print("\n无重复性的最高点序列对应日期如下：")
+        print(maxInfo[1])
         minInfo = Trend.read_min_by_step(inputCycle, dateIndex)
-        # print("\n无重复性的最低点序列如下：")
-        # print(minInfo[0])
-        # print("\n无重复性的最低点序列对应日期如下：")
-        # print(minInfo[1])
+        print("\n无重复性的最低点序列如下：")
+        print(minInfo[0])
+        print("\n无重复性的最低点序列对应日期如下：")
+        print(minInfo[1])
         noContinuity = Trend.continuity_eliminate(minInfo[0], maxInfo[0], minInfo[1], maxInfo[1])
         print("\n无重复性和连续性的最高点序列如下：")
         print(noContinuity[0])
@@ -466,8 +496,10 @@ class Trend:
         print(noContinuity[3])
         print("\n趋势判断如下：")
 
+        print("\n总体趋势：")
         interval = Trend.transversal_interval()
 
+        print("\n当天趋势：")
         trendResult = Trend.trend_judge(noContinuity[0], noContinuity[1], noContinuity[2], noContinuity[3])
 
         if trendResult[0] == 3:
@@ -497,7 +529,8 @@ class Trend:
             json_result.append(result2)
 
         print("\n突破判断如下：")
-        breakResult, json_breakResult = Trend.break_judge(noContinuity[0], noContinuity[1])
+        breakResult, json_breakResult = Trend.break_judge(noContinuity[0], noContinuity[2], noContinuity[1],
+                                                          noContinuity[3])
         result.append(breakResult)
         json_result.append(json_breakResult)
 
@@ -509,8 +542,9 @@ class Trend:
         # info为RSI值计算需要的数组
         info = []
         unitInfo = []
-
+        print("transversal_trend全数据集趋势判断：")
         for i in range(4 * inputCycle, dateIndex + 1, 1):
+
             maxInfo = Trend.read_max_by_step(inputCycle, i)
             minInfo = Trend.read_min_by_step(inputCycle, i)
             noContinuity = Trend.continuity_eliminate(minInfo[0], maxInfo[0], minInfo[1], maxInfo[1])
@@ -527,7 +561,7 @@ class Trend:
                 unitInfo.append(2)
                 unitInfo.append(i - 1)
                 unitInfo.append(Trend.read_row_by_date(noContinuity[3][-2]))
-                print(Trend.read_row_by_date(noContinuity[3][-2]))
+                # print("transversal_trend全数据集遍历", Trend.read_row_by_date(noContinuity[3][-2]))
                 unitInfo.append(Trend.read_row_by_date(noContinuity[3][-1]))
                 info.append(unitInfo)
                 unitInfo = []

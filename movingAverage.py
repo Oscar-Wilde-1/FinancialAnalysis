@@ -37,7 +37,7 @@ class averageLine:
         self.rows = self.df.shape[0] - 1
 
         self.T = indexVal.index.values[0]
-        print(self.close_price[self.T])
+        # #print(self.close_price[self.T])
         # print(type(self.T))
         self.N = 1
         self.M = 1
@@ -95,7 +95,7 @@ class averageLine:
                 self.N)
             json_res = str(date.year) + "/" + str(date.month) + "/" + str(date.day) + ": 单均线判断：向下穿越%d 日均线，出现做空机会！" % (
                 self.N)
-            print(res)
+            # print(res)
             return res, json_res
 
         elif MA_T < MA_Tpre and (MA_T < P_close and Ppre_close < MA_Tpre):
@@ -104,7 +104,7 @@ class averageLine:
                 self.N)
             json_res = str(date.year) + "/" + str(date.month) + "/" + str(date.day) + ": 单均线判断：向上穿越%d 日均线，出现做多机会！" % (
                 self.N)
-            print(res)
+            # print(res)
             return res, json_res
         else:
             # print( "单均线判断：无明显穿越情况\n" )
@@ -134,7 +134,7 @@ class averageLine:
                 date.day) + ": 双均线判断：%d 日均线向上穿越 %d 日均线，出现做多机会！\n" % (M, N)
             json_res = str(date.year) + "/" + str(date.month) + "/" + str(
                 date.day) + ": 双均线判断：%d 日均线向上穿越 %d 日均线，出现做多机会！" % (M, N)
-            print(res)
+            # print(res)
             return res, json_res
         if Ptm < Ptn and Ptn_pre < Ptm_pre:
             date = self.date[T]
@@ -142,7 +142,7 @@ class averageLine:
                 date.day) + ": 双均线判断：%d 日均线向下穿越 %d 日均线，出现做空机会！\n" % (M, N)
             json_res = str(date.year) + "/" + str(date.month) + "/" + str(
                 date.day) + ": 双均线判断：%d 日均线向下穿越 %d 日均线，出现做空机会！" % (M, N)
-            print(res)
+            # print(res)
             return res, json_res
         else:
             # res = str("双均线判断：无明显穿越情况")
